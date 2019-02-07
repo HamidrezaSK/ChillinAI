@@ -1,5 +1,0 @@
-*.autosave
-*.pro.user
-
-external/*
-!external/README
