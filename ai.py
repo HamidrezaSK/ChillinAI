@@ -11,6 +11,9 @@ from ks.models import (World, Police, Terrorist, Bomb, Position, Constants,
                        ESoundIntensity, ECell, EAgentStatus)
 from ks.commands import DefuseBomb, PlantBomb, Move, ECommandDirection
 
+#ai imports
+import Classes
+
 
 class AI(RealtimeAI):
 
@@ -44,6 +47,7 @@ class AI(RealtimeAI):
 
 
     def decide(self):
+        map = Classes.Map(self.world.board,self.world.width,self.world.height)
         print('decide')
 
         my_agents = self.world.polices if self.my_side == 'Police' else self.world.terrorists
