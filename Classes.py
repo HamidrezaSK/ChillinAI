@@ -29,10 +29,13 @@ class Map:
 				_init_neighbors(node)
 				if(self.board[i][j] == LargeBombSite):
 					self.LargeBombSites.append((i,j))
-				else if(self.board[i][j] == VastBombSite):
+				elif(self.board[i][j] == VastBombSite):
 					self.VastBombSites.append((i,j))
-				else if(self.board[i][j] == SmallBombSite):
+				elif(self.board[i][j] == SmallBombSite):
 					self.SmallBombSites.append((i,j))
+				elif(self.board[i][j] == MediumBombSite):
+					self.MediumBombSites.append((i,j))
+					
 	
 
 
