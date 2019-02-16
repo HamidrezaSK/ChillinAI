@@ -25,6 +25,13 @@ class Map:
         # self.graph2 = {}
         self._init_map()
 
+    def get_pos_by_node(self,node):
+
+        for i in range(self.height):
+            if node in self.Nodes[i]:
+                j = self.Nodes[i].index(node)
+                value = [i,j]
+                return value
 
 
     def _init_map(self):  # to initiate Map you must use this;now it used in __init__
@@ -64,7 +71,7 @@ class Map:
                 neighbors.append(self.Nodes[i][j - 1])
 
             self.graph[self.Nodes[i][j]] = neighbors
-            
+
         except:
             pass
 
@@ -76,6 +83,8 @@ class Map:
 
 class BFS:
     def DoBfs(self, root, map, goal):
+
+        goal_found = False
 
         graph = map.graph
 
@@ -91,14 +100,23 @@ class BFS:
 
                 if neighbour == goal:
                     parent[neighbour] = vertex
-                    self.print_path(parent, neighbour, root)
-                    return
+
+                    path = self.print_path(parent, neighbour, root)
+                    goal_found = True
+                    break
 
                 if neighbour not in parent:
                     # print("hi")
                     parent[neighbour] = vertex
                     queue.append(neighbour)
-        print(" No path found ")
+        if (goal_found):
+            path_pos_list = []
+            for i in range(len(path)):
+                path_pos_list.append(map.get_pos_by_node(path[i]))
+            return path_pos_list
+        return []
+
+
 
     def print_path(self, parent, goal, start):
         path = [goal]
@@ -106,4 +124,4 @@ class BFS:
         while goal != start:
             goal = parent[goal]
             path.insert(0, goal)
-        print(path)
+        return path

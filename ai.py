@@ -58,11 +58,15 @@ class AI(RealtimeAI):
 
             AgentNode = map.GetNodeByPosition((agent.position.y, agent.position.x))  # find root node
 
+            bomb  = map.GetNodeByPosition(map.MediumBombSites[0])
+
             testnode1 = map.GetNodeByPosition((3, 2))
 
-            testnode2 = map.GetNodeByPosition((6, 4))
+            testnode2 = map.GetNodeByPosition((1, self.world.width-3))
 
-            bfs.DoBfs(testnode1, map, testnode2)
+
+
+
 
             doing_bomb_operation = agent.defusion_remaining_time != -1 if self.my_side == 'Police' else agent.planting_remaining_time != -1
 
@@ -70,16 +74,20 @@ class AI(RealtimeAI):
                 self._agent_print(agent.id, 'Continue Bomb Operation')
                 continue
 
+
+            path = bfs.DoBfs(AgentNode, map, testnode2)
+            self.move_by_path_list(agent, path)
+
             bombsite_direction = self._find_bombsite_direction(agent)
-            if bombsite_direction == None:
-                self._agent_print(agent.id, 'Random Move')
-                self.move(agent.id, random.choice(self._empty_directions(agent.position)))
-            else:
-                self._agent_print(agent.id, 'Start Bomb Operation')
-                if self.my_side == 'Police':
-                    self.defuse(agent.id, bombsite_direction)
-                else:
-                    self.plant(agent.id, bombsite_direction)
+            # if bombsite_direction == None:
+            #     self._agent_print(agent.id, 'Random Move')
+            #     self.move(agent.id, random.choice(self._empty_directions(agent.position)))
+            # else:
+            #     self._agent_print(agent.id, 'Start Bomb Operation')
+            #     if self.my_side == 'Police':
+            #         self.defuse(agent.id, bombsite_direction)
+            #     else:
+            #         self.plant(agent.id, bombsite_direction)
 
     def plant(self, agent_id, bombsite_direction):
         self.send_command(PlantBomb(id=agent_id, direction=bombsite_direction))
@@ -89,6 +97,25 @@ class AI(RealtimeAI):
 
     def move(self, agent_id, move_direction):
         self.send_command(Move(id=agent_id, direction=move_direction))
+
+    def move_by_path_list(self,agent,list):
+        path = list
+        agent_id = agent.id
+        while len(path)!=1:
+            if (path[0][0] == path[1][0]) and (path[0][1]>path[1][1]):
+                self.move(agent_id,ECommandDirection.Left)
+                return
+            elif (path[0][0] == path[1][0]) and (path[0][1]<path[1][1]):
+                self.move(agent_id, ECommandDirection.Right)
+                return
+            elif (path[0][0] > path[1][0]) and (path[0][1]==path[1][1]):
+                self.move(agent_id, ECommandDirection.Up)
+                return
+            elif (path[0][0] < path[1][0]) and (path[0][1]==path[1][1]):
+                self.move(agent_id, ECommandDirection.Down)
+                return
+
+
 
     def _empty_directions(self, position):
         empty_directions = []
