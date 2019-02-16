@@ -6,14 +6,8 @@ import collections
 
 class Node:
     def __init__(self, x, y):  # ___x   (x,y) => cordinates
-        self.cordinates = (x, y)  # |
+        self.coordinates = (y, x)  # |
         self.neighbors = []
-        self.type = ""  # type of the node itself                                          #|
-
-    # y
-
-    # def _init_neighbors(self):
-
 
 class Map:
     def __init__(self, board, width,
@@ -34,15 +28,8 @@ class Map:
         for i in range(self.height):
             self.Nodes.append([])
             for j in range(self.width):
-                node = Node(j, i)
+                node = Node(i, j)
                 self.Nodes[i].append(node)
-
-                self._init_neighbors(node)
-
-                self.init_graph(node)
-
-
-
                 if (self.board[i][j] == ECell.LargeBombSite):
                     self.LargeBombSites.append((i, j))
                 elif (self.board[i][j] == ECell.VastBombSite):
@@ -51,21 +38,29 @@ class Map:
                     self.SmallBombSites.append((i, j))
                 elif (self.board[i][j] == ECell.MediumBombSite):
                     self.MediumBombSites.append((i, j))
+        
+
+
+
+        for i in range(self.height):
+            for j in range(self.width):
+                self._init_neighbors(self.Nodes[i][j])
+                self.init_graph(self.Nodes[i][j])
 
     def _init_neighbors(self, node):  # this function will be called in _init_map function.s
-        i = node.cordinates[1]
-        j = node.cordinates[0]
+        i = node.coordinates[0]
+        j = node.coordinates[1]
 
         try:
 
             if (self.board[i + 1][j] == ECell.Empty):
-                self.Nodes[i][j].neighbors.append(self.Nodes[i + 1][j])
+                node.neighbors.append(self.Nodes[i + 1][j])
             if (self.board[i - 1][j] == ECell.Empty):
-                self.Nodes[i][j].neighbors.append(self.Nodes[i - 1][j])
+                node.neighbors.append(self.Nodes[i - 1][j])
             if (self.board[i][j + 1] == ECell.Empty):
-                self.Nodes[i][j].neighbors.append(self.Nodes[i][j + 1])
+                node.neighbors.append(self.Nodes[i][j + 1])
             if (self.board[i][j - 1] == ECell.Empty):
-                self.Nodes[i][j].neighbors.append(self.Nodes[i][j - 1])
+                node.neighbors.append(self.Nodes[i][j - 1])
         except:
             pass
 
@@ -73,12 +68,12 @@ class Map:
 
     def init_graph(self,node):
 
-        i = node.cordinates[1]
-        j = node.cordinates[0]
+        i = node.coordinates[0]
+        j = node.coordinates[1]
 
         self.graph[self.Nodes[i][j]] = self.Nodes[i][j].neighbors
 
-        self.graph2[(self.Nodes[i][j].cordinates[0],self.Nodes[i][j].cordinates[1])] = [(boom.cordinates[0],boom.cordinates[1]) for boom in self.Nodes[i][j].neighbors]
+        self.graph2[(self.Nodes[i][j].coordinates[0],self.Nodes[i][j].coordinates[1])] = [(boom.coordinates[0],boom.coordinates[1]) for boom in self.Nodes[i][j].neighbors]
 
 
     def GetNodeByPosition(self, position):
@@ -96,14 +91,14 @@ class BFS:
         parent = {}
         parent[root] = root
 
-        print(graph2)
+        # print(graph2)
 
         queue = collections.deque([root])
         while queue:
             vertex = queue.popleft()
             i=0
             for neighbour in graph[vertex]:
-                print(i)
+                # print(i)
                 i += 1
 
                 if neighbour == goal:
@@ -112,7 +107,7 @@ class BFS:
                     return
 
                 if neighbour not in parent:
-                    print("hi")
+                    # print("hi")
                     parent[neighbour] = vertex
                     queue.append(neighbour)
         print(" No path found ")

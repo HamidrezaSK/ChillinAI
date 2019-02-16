@@ -50,6 +50,8 @@ class AI(RealtimeAI):
         map = Classes.Map(self.world.board,self.world.width,self.world.height)
 
         bfs = Classes.BFS()
+        for i in map.Nodes[3][2].neighbors:
+            print(i.coordinates)
 
         # bfs.DoBfs(map,,)
 
