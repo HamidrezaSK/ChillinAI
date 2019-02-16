@@ -9,6 +9,7 @@ class Node:
         self.coordinates = (y, x)  # |
         self.neighbors = []
 
+
 class Map:
     def __init__(self, board, width,
                  height):  # board , width , height are the game initiate attributes in decide function.
@@ -21,8 +22,10 @@ class Map:
         self.MediumBombSites = []
         self.SmallBombSites = []
         self.graph = {}
-        self.graph2 = {}
+        # self.graph2 = {}
         self._init_map()
+
+
 
     def _init_map(self):  # to initiate Map you must use this;now it used in __init__
         for i in range(self.height):
@@ -38,42 +41,32 @@ class Map:
                     self.SmallBombSites.append((i, j))
                 elif (self.board[i][j] == ECell.MediumBombSite):
                     self.MediumBombSites.append((i, j))
-        
-
-
 
         for i in range(self.height):
             for j in range(self.width):
-                self._init_neighbors(self.Nodes[i][j])
-                self.init_graph(self.Nodes[i][j])
+                self._init_neighbors_graph(self.Nodes[i][j])
 
-    def _init_neighbors(self, node):  # this function will be called in _init_map function.s
+    def _init_neighbors_graph(self, node):  # this function will be called in _init_map function.s
         i = node.coordinates[0]
         j = node.coordinates[1]
+
+        neighbors = []
 
         try:
 
             if (self.board[i + 1][j] == ECell.Empty):
-                node.neighbors.append(self.Nodes[i + 1][j])
+                neighbors.append(self.Nodes[i + 1][j])
             if (self.board[i - 1][j] == ECell.Empty):
-                node.neighbors.append(self.Nodes[i - 1][j])
+                neighbors.append(self.Nodes[i - 1][j])
             if (self.board[i][j + 1] == ECell.Empty):
-                node.neighbors.append(self.Nodes[i][j + 1])
+                neighbors.append(self.Nodes[i][j + 1])
             if (self.board[i][j - 1] == ECell.Empty):
-                node.neighbors.append(self.Nodes[i][j - 1])
+                neighbors.append(self.Nodes[i][j - 1])
+
+            self.graph[self.Nodes[i][j]] = neighbors
+            
         except:
             pass
-
-
-
-    def init_graph(self,node):
-
-        i = node.coordinates[0]
-        j = node.coordinates[1]
-
-        self.graph[self.Nodes[i][j]] = self.Nodes[i][j].neighbors
-
-        self.graph2[(self.Nodes[i][j].coordinates[0],self.Nodes[i][j].coordinates[1])] = [(boom.coordinates[0],boom.coordinates[1]) for boom in self.Nodes[i][j].neighbors]
 
 
     def GetNodeByPosition(self, position):
@@ -82,23 +75,18 @@ class Map:
 
 
 class BFS:
-    def DoBfs(self, map, root, goal):
+    def DoBfs(self, root, map, goal):
 
-        self.BreadthFirstSearch(root, map.graph, goal,map.graph2)
-
-    def BreadthFirstSearch(self, root, graph, goal,graph2):
+        graph = map.graph
 
         parent = {}
         parent[root] = root
 
-        # print(graph2)
-
         queue = collections.deque([root])
         while queue:
             vertex = queue.popleft()
-            i=0
+            i = 0
             for neighbour in graph[vertex]:
-                # print(i)
                 i += 1
 
                 if neighbour == goal:

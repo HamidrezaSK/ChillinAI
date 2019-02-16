@@ -11,12 +11,11 @@ from ks.models import (World, Police, Terrorist, Bomb, Position, Constants,
                        ESoundIntensity, ECell, EAgentStatus)
 from ks.commands import DefuseBomb, PlantBomb, Move, ECommandDirection
 
-#ai imports
+# ai imports
 import Classes
 
 
 class AI(RealtimeAI):
-
     def __init__(self, world):
         super(AI, self).__init__(world)
         self.done = False
@@ -32,10 +31,10 @@ class AI(RealtimeAI):
         ]
 
         self.DIR_TO_POS = {
-            ECommandDirection.Up:    (+0, -1),
+            ECommandDirection.Up: (+0, -1),
             ECommandDirection.Right: (+1, +0),
-            ECommandDirection.Down:  (+0, +1),
-            ECommandDirection.Left:  (-1, +0),
+            ECommandDirection.Down: (+0, +1),
+            ECommandDirection.Left: (-1, +0),
         }
 
         self.BOMBSITES_ECELL = [
@@ -45,15 +44,10 @@ class AI(RealtimeAI):
             ECell.VastBombSite,
         ]
 
-
     def decide(self):
-        map = Classes.Map(self.world.board,self.world.width,self.world.height)
+        map = Classes.Map(self.world.board, self.world.width, self.world.height)
 
         bfs = Classes.BFS()
-        for i in map.Nodes[3][2].neighbors:
-            print(i.coordinates)
-
-        # bfs.DoBfs(map,,)
 
         print('decide')
 
@@ -62,22 +56,13 @@ class AI(RealtimeAI):
             if agent.status == EAgentStatus.Dead:
                 continue
 
-            AgentNode = map.GetNodeByPosition((agent.position.y,agent.position.x)) #find root node
+            AgentNode = map.GetNodeByPosition((agent.position.y, agent.position.x))  # find root node
 
-            smallbombsiteNode = map.GetNodeByPosition(map.SmallBombSites[0]) #find goal node
-
-            testnode1 = map.GetNodeByPosition((3,2))
+            testnode1 = map.GetNodeByPosition((3, 2))
 
             testnode2 = map.GetNodeByPosition((6, 4))
 
-            bfs.DoBfs(map,testnode1,testnode2)
-
-
-
-
-
-
-
+            bfs.DoBfs(testnode1, map, testnode2)
 
             doing_bomb_operation = agent.defusion_remaining_time != -1 if self.my_side == 'Police' else agent.planting_remaining_time != -1
 
@@ -96,19 +81,14 @@ class AI(RealtimeAI):
                 else:
                     self.plant(agent.id, bombsite_direction)
 
-
-
     def plant(self, agent_id, bombsite_direction):
         self.send_command(PlantBomb(id=agent_id, direction=bombsite_direction))
-
 
     def defuse(self, agent_id, bombsite_direction):
         self.send_command(DefuseBomb(id=agent_id, direction=bombsite_direction))
 
-
     def move(self, agent_id, move_direction):
         self.send_command(Move(id=agent_id, direction=move_direction))
-
 
     def _empty_directions(self, position):
         empty_directions = []
@@ -119,7 +99,6 @@ class AI(RealtimeAI):
                 empty_directions.append(direction)
         return empty_directions
 
-
     def _find_bombsite_direction(self, agent):
         for direction in self.DIRECTIONS:
             pos = self._sum_pos_tuples((agent.position.x, agent.position.y), self.DIR_TO_POS[direction])
@@ -129,17 +108,14 @@ class AI(RealtimeAI):
                     return direction
         return None
 
-
     def _has_bomb(self, position):
         for bomb in self.world.bombs:
             if position[0] == bomb.position.x and position[1] == bomb.position.y:
                 return True
         return False
 
-
     def _sum_pos_tuples(self, t1, t2):
         return (t1[0] + t2[0], t1[1] + t2[1])
-
 
     def _agent_print(self, agent_id, text):
         print('Agent[{}]: {}'.format(agent_id, text))
