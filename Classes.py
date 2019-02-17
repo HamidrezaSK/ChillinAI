@@ -119,3 +119,34 @@ class BFS:
             goal = parent[goal]
             path.insert(0, goal)
         print(path)
+
+class _dijkstar:
+    from dijkstar import Graph, find_path
+    def __init__(self)
+        self.graph = Graph()
+        self.finded_path = None
+        init_graph()
+        #self.cost_function
+    
+
+    def init_graph(self):
+        #self.graph.add_edge(1, 2, {'cost': 1})
+        pass
+    def _findpath(self):
+        #find_path(source , destination,cost function)
+        pass
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
