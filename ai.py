@@ -47,11 +47,13 @@ class AI(RealtimeAI):
     def decide(self):
         map = Classes.Map(self.world.board, self.world.width, self.world.height)
 
-        print(map.graph[map.GetNodeByPosition((22,35))])
-
         bfs = Classes.BFS()
 
-        print('decide')
+        #difining the dijkstra instance
+
+        dijkstra = Classes._dijkstra(map,self.world.polices,self.world.constants.police_vision_distance)
+
+
 
         my_agents = self.world.polices if self.my_side == 'Police' else self.world.terrorists
         for agent in my_agents:
@@ -60,11 +62,19 @@ class AI(RealtimeAI):
 
             AgentNode = map.GetNodeByPosition((agent.position.y, agent.position.x))  # find root node
 
+
+
             bomb  = map.GetNodeByPosition(map.MediumBombSites[0])
 
             testnode1 = map.GetNodeByPosition((3, 2))
 
-            testnode2 = map.GetNodeByPosition((1, self.world.width-3    ))
+            testnode2 = map.GetNodeByPosition((1, self.world.width-3))
+
+
+
+
+
+
 
 
 
@@ -75,10 +85,15 @@ class AI(RealtimeAI):
             if doing_bomb_operation:
                 self._agent_print(agent.id, 'Continue Bomb Operation')
                 continue
+            if self.current_cycle > 53:
+                path = dijkstra._findpath(AgentNode.id, testnode2.id)
 
+                # print(path)
+
+                self.move_by_path_list(agent, path)
             # print(self.world.board[22][35])
-            path = bfs.DoBfs(AgentNode, map, testnode2)
-            self.move_by_path_list(agent, path)
+            # path = bfs.DoBfs(AgentNode, map, testnode2)
+
 
             bombsite_direction = self._find_bombsite_direction(agent)
             # if bombsite_direction == None:
@@ -106,15 +121,19 @@ class AI(RealtimeAI):
         while len(path)!=1:
             if (path[0][0] == path[1][0]) and (path[0][1]>path[1][1]):
                 self.move(agent_id,ECommandDirection.Left)
+                print("left")
                 return
             elif (path[0][0] == path[1][0]) and (path[0][1]<path[1][1]):
                 self.move(agent_id, ECommandDirection.Right)
+                print("right")
                 return
             elif (path[0][0] > path[1][0]) and (path[0][1]==path[1][1]):
                 self.move(agent_id, ECommandDirection.Up)
+                print("up")
                 return
             elif (path[0][0] < path[1][0]) and (path[0][1]==path[1][1]):
                 self.move(agent_id, ECommandDirection.Down)
+                print("down")
                 return
 
 
