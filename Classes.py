@@ -25,14 +25,13 @@ class Map:
         # self.graph2 = {}
         self._init_map()
 
-    def get_pos_by_node(self,node):
+    def get_pos_by_node(self, node):
 
         for i in range(self.height):
             if node in self.Nodes[i]:
                 j = self.Nodes[i].index(node)
-                value = [i,j]
+                value = [i, j]
                 return value
-
 
     def _init_map(self):  # to initiate Map you must use this;now it used in __init__
         for i in range(self.height):
@@ -53,9 +52,12 @@ class Map:
             for j in range(self.width):
                 self._init_neighbors_graph(self.Nodes[i][j])
 
+
+
     def _init_neighbors_graph(self, node):  # this function will be called in _init_map function.s
-        i = node.coordinates[0]
-        j = node.coordinates[1]
+        j = node.coordinates[0]
+        i = node.coordinates[1]
+
 
         neighbors = []
 
@@ -69,11 +71,13 @@ class Map:
                 neighbors.append(self.Nodes[i][j + 1])
             if (self.board[i][j - 1] == ECell.Empty):
                 neighbors.append(self.Nodes[i][j - 1])
-
+            if i == 35 and j == 22:
+                print("kojaE")
             self.graph[self.Nodes[i][j]] = neighbors
 
         except:
-            pass
+            if(i==22 and j==35):
+                print("kos nane")
 
 
     def GetNodeByPosition(self, position):
@@ -88,6 +92,7 @@ class BFS:
 
         graph = map.graph
 
+
         parent = {}
         parent[root] = root
 
@@ -95,28 +100,30 @@ class BFS:
         while queue:
             vertex = queue.popleft()
             i = 0
-            for neighbour in graph[vertex]:
-                i += 1
 
-                if neighbour == goal:
-                    parent[neighbour] = vertex
+            try:
+                for neighbour in graph[vertex]:
+                    i += 1
 
-                    path = self.print_path(parent, neighbour, root)
-                    goal_found = True
-                    break
+                    if neighbour == goal:
+                        parent[neighbour] = vertex
 
-                if neighbour not in parent:
-                    # print("hi")
-                    parent[neighbour] = vertex
-                    queue.append(neighbour)
+                        path = self.print_path(parent, neighbour, root)
+                        goal_found = True
+                        break
+
+                    if neighbour not in parent:
+                        # print("hi")
+                        parent[neighbour] = vertex
+                        queue.append(neighbour)
+            except KeyError:
+                print(vertex.coordinates)
         if (goal_found):
             path_pos_list = []
             for i in range(len(path)):
                 path_pos_list.append(map.get_pos_by_node(path[i]))
             return path_pos_list
         return []
-
-
 
     def print_path(self, parent, goal, start):
         path = [goal]
@@ -126,22 +133,22 @@ class BFS:
             path.insert(0, goal)
         return path
 
+
 class _dijkstar:
     from dijkstar import Graph, find_path
-    def __init__(self)
+    def __init__(self):
         self.graph = Graph()
         self.finded_path = None
         init_graph()
-        #self.cost_function
-    
+        # self.cost_function
 
     def init_graph(self):
-        #self.graph.add_edge(1, 2, {'cost': 1})
-        pass
-    def _findpath(self):
-        #find_path(source , destination,cost function)
+        # self.graph.add_edge(1, 2, {'cost': 1})
         pass
 
+    def _findpath(self):
+        # find_path(source , destination,cost function)
+        pass
 
 
 

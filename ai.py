@@ -47,6 +47,8 @@ class AI(RealtimeAI):
     def decide(self):
         map = Classes.Map(self.world.board, self.world.width, self.world.height)
 
+        print(map.graph[map.GetNodeByPosition((22,35))])
+
         bfs = Classes.BFS()
 
         print('decide')
@@ -62,7 +64,7 @@ class AI(RealtimeAI):
 
             testnode1 = map.GetNodeByPosition((3, 2))
 
-            testnode2 = map.GetNodeByPosition((1, self.world.width-3))
+            testnode2 = map.GetNodeByPosition((1, self.world.width-3    ))
 
 
 
@@ -74,7 +76,7 @@ class AI(RealtimeAI):
                 self._agent_print(agent.id, 'Continue Bomb Operation')
                 continue
 
-
+            # print(self.world.board[22][35])
             path = bfs.DoBfs(AgentNode, map, testnode2)
             self.move_by_path_list(agent, path)
 
