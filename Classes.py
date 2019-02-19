@@ -155,10 +155,16 @@ class _dijkstra:
         dfz = []
         for i in self.polices:
             dfz+=self.danger_zone(i,self.police_vision)
+            # print(i.coordinates)
+        # for i in dfz:
+        #     print(i.coordinates)
         for i in self.map.graph:
             for j in self.map.graph[i]:
                 if j in dfz:
+                    # print("koskholi")
                     self.graph.add_edge(i.id,j.id,{'cost': 1000})
+                    print("i : "+str(i.coordinates))
+                    print("j : "+str(j.coordinates))
                 else:
                     self.graph.add_edge(i.id, j.id, {'cost': 1})
     def danger_zone(self,node,police_vision):
@@ -167,14 +173,15 @@ class _dijkstra:
         i = node.coordinates[1]
         # self.map.Nodes[i+a][j+b]
         danger_fucking_zone = []
-        for y_vision in range(police_vision+2):
-            for x_vision in range(police_vision+2):
-                if(x_vision + y_vision < police_vision+2):
-                    danger_fucking_zone.append(self.map.Nodes[y_vision][x_vision])
+        for y_vision in range(-police_vision-1,police_vision+2):
+            for x_vision in range(-police_vision-1,police_vision+2):
+                if(abs(x_vision) + abs(y_vision) < police_vision+2):
+                    danger_fucking_zone.append(self.map.Nodes[j+y_vision][i+x_vision])
         return danger_fucking_zone
 
     def _findpath(self,source,destination):
         path_list = find_path(self.graph,source , destination,cost_func = self.cost_function).nodes
+        print(find_path(self.graph,source , destination,cost_func = self.cost_function).costs)
         position_path_list = []
 
         for i in range(len(path_list)):

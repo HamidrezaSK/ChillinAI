@@ -22,6 +22,9 @@ class AI(RealtimeAI):
 
     def initialize(self):
         print('initialize')
+        self.map = Classes.Map(self.world.board, self.world.width, self.world.height)
+        self.dijkstra = Classes._dijkstra(self.map,self.world.polices,self.world.constants.police_vision_distance)
+
 
         self.DIRECTIONS = [
             ECommandDirection.Up,
@@ -45,66 +48,58 @@ class AI(RealtimeAI):
         ]
 
     def decide(self):
-        map = Classes.Map(self.world.board, self.world.width, self.world.height)
 
         bfs = Classes.BFS()
 
         #difining the dijkstra instance
 
-        dijkstra = Classes._dijkstra(map,self.world.polices,self.world.constants.police_vision_distance)
-
+        if (self.world.polices):
+            print("fucking cops")
+            self.map = Classes.Map(self.world.board, self.world.width, self.world.height)
+            self.dijkstra = Classes._dijkstra(self.map,self.world.polices,self.world.constants.police_vision_distance)
 
 
         my_agents = self.world.polices if self.my_side == 'Police' else self.world.terrorists
         for agent in my_agents:
-            if agent.status == EAgentStatus.Dead:
-                continue
+            if agent.id == 0:
+                if agent.status == EAgentStatus.Dead:
+                    continue
 
-            AgentNode = map.GetNodeByPosition((agent.position.y, agent.position.x))  # find root node
-
-
-
-            bomb  = map.GetNodeByPosition(map.MediumBombSites[0])
-
-            testnode1 = map.GetNodeByPosition((3, 2))
-
-            testnode2 = map.GetNodeByPosition((1, self.world.width-3))
+                AgentNode = self.map.GetNodeByPosition((agent.position.y, agent.position.x))  # find root node
 
 
 
+                bomb  = self.map.GetNodeByPosition(self.map.MediumBombSites[0])
+
+                testnode1 = self.map.GetNodeByPosition((12, 1))
+
+                testnode2 = self.map.GetNodeByPosition((1, self.world.width-3))
 
 
+                doing_bomb_operation = agent.defusion_remaining_time != -1 if self.my_side == 'Police' else agent.planting_remaining_time != -1
 
+                if doing_bomb_operation:
+                    self._agent_print(agent.id, 'Continue Bomb Operation')
+                    continue
+                #if self.current_cycle > 53:
+                path = self.dijkstra._findpath(AgentNode.id, testnode1.id)
 
-
-
-
-
-            doing_bomb_operation = agent.defusion_remaining_time != -1 if self.my_side == 'Police' else agent.planting_remaining_time != -1
-
-            if doing_bomb_operation:
-                self._agent_print(agent.id, 'Continue Bomb Operation')
-                continue
-            if self.current_cycle > 53:
-                path = dijkstra._findpath(AgentNode.id, testnode2.id)
-
-                # print(path)
-
+                    # print(path)
                 self.move_by_path_list(agent, path)
-            # print(self.world.board[22][35])
-            # path = bfs.DoBfs(AgentNode, map, testnode2)
+                # print(self.world.board[22][35])
+                # path = bfs.DoBfs(AgentNode, map, testnode2)
 
 
-            bombsite_direction = self._find_bombsite_direction(agent)
-            # if bombsite_direction == None:
-            #     self._agent_print(agent.id, 'Random Move')
-            #     self.move(agent.id, random.choice(self._empty_directions(agent.position)))
-            # else:
-            #     self._agent_print(agent.id, 'Start Bomb Operation')
-            #     if self.my_side == 'Police':
-            #         self.defuse(agent.id, bombsite_direction)
-            #     else:
-            #         self.plant(agent.id, bombsite_direction)
+                bombsite_direction = self._find_bombsite_direction(agent)
+                # if bombsite_direction == None:
+                #     self._agent_print(agent.id, 'Random Move')
+                #     self.move(agent.id, random.choice(self._empty_directions(agent.position)))
+                # else:
+                #     self._agent_print(agent.id, 'Start Bomb Operation')
+                #     if self.my_side == 'Police':
+                #         self.defuse(agent.id, bombsite_direction)
+                #     else:
+                #         self.plant(agent.id, bombsite_direction)
 
     def plant(self, agent_id, bombsite_direction):
         self.send_command(PlantBomb(id=agent_id, direction=bombsite_direction))
