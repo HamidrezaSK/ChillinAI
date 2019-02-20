@@ -71,7 +71,7 @@ class AI(RealtimeAI):
 
                 bomb  = self.map.GetNodeByPosition(self.map.MediumBombSites[0])
 
-                testnode1 = self.map.GetNodeByPosition((12, 1))
+                testnode1 = self.map.GetNodeByPosition((11, 10))
 
                 testnode2 = self.map.GetNodeByPosition((1, self.world.width-3))
 
@@ -116,19 +116,15 @@ class AI(RealtimeAI):
         while len(path)!=1:
             if (path[0][0] == path[1][0]) and (path[0][1]>path[1][1]):
                 self.move(agent_id,ECommandDirection.Left)
-                print("left")
                 return
             elif (path[0][0] == path[1][0]) and (path[0][1]<path[1][1]):
                 self.move(agent_id, ECommandDirection.Right)
-                print("right")
                 return
             elif (path[0][0] > path[1][0]) and (path[0][1]==path[1][1]):
                 self.move(agent_id, ECommandDirection.Up)
-                print("up")
                 return
             elif (path[0][0] < path[1][0]) and (path[0][1]==path[1][1]):
                 self.move(agent_id, ECommandDirection.Down)
-                print("down")
                 return
 
 

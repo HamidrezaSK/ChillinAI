@@ -156,21 +156,21 @@ class _dijkstra:
         for i in self.polices:
             dfz+=self.danger_zone(i,self.police_vision)
             # print(i.coordinates)
-        # for i in dfz:
-        #     print(i.coordinates)
+        for i in dfz:
+            print(i.coordinates)
         for i in self.map.graph:
             for j in self.map.graph[i]:
                 if j in dfz:
                     # print("koskholi")
                     self.graph.add_edge(i.id,j.id,{'cost': 1000})
-                    print("i : "+str(i.coordinates))
-                    print("j : "+str(j.coordinates))
+                    # print("i : "+str(i.coordinates))
+                    # print("j : "+str(j.coordinates))
                 else:
                     self.graph.add_edge(i.id, j.id, {'cost': 1})
     def danger_zone(self,node,police_vision):
 
-        j = node.coordinates[0]
-        i = node.coordinates[1]
+        i = node.coordinates[0]
+        j = node.coordinates[1]
         # self.map.Nodes[i+a][j+b]
         danger_fucking_zone = []
         for y_vision in range(-police_vision-1,police_vision+2):
