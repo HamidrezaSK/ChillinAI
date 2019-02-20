@@ -49,14 +49,14 @@ class AI(RealtimeAI):
 
         print(map.graph[map.GetNodeByPosition((22,35))])
 
-        bfs = Classes.BFS()
-
         print('decide')
+        dijkstra = Classes._dijkstra(map)
 
         my_agents = self.world.polices if self.my_side == 'Police' else self.world.terrorists
         for agent in my_agents:
             if agent.status == EAgentStatus.Dead:
                 continue
+
 
             AgentNode = map.GetNodeByPosition((agent.position.y, agent.position.x))  # find root node
 
@@ -64,7 +64,11 @@ class AI(RealtimeAI):
 
             testnode1 = map.GetNodeByPosition((3, 2))
 
-            testnode2 = map.GetNodeByPosition((1, self.world.width-3    ))
+            testnode2 = map.GetNodeByPosition((16, 10))
+
+
+
+            
 
 
 
@@ -77,8 +81,12 @@ class AI(RealtimeAI):
                 continue
 
             # print(self.world.board[22][35])
-            path = bfs.DoBfs(AgentNode, map, testnode2)
-            self.move_by_path_list(agent, path)
+
+            path = dijkstra._findpath(AgentNode.id, testnode2.id)
+
+            if (agent.id == 0):
+
+                self.move_by_path_list(agent, path)
 
             bombsite_direction = self._find_bombsite_direction(agent)
             # if bombsite_direction == None:
