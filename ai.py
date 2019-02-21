@@ -51,10 +51,7 @@ class AI(RealtimeAI):
 
     def decide(self):
 
-        # bfs = Classes.BFS()
-
         #defining the dijkstra instance
-
         if (self.world.polices):
             # refresh map
             self.map = Classes.Map(self.world.board, self.world.width, self.world.height)
@@ -63,7 +60,6 @@ class AI(RealtimeAI):
             # refresh map
             self.map = Classes.Map(self.world.board, self.world.width, self.world.height)
             self.dijkstra = Classes._dijkstra(self.map,self.world.polices,self.world.constants.police_vision_distance)
-            # self.bomb_count = len(self.world.bombs)            
 
         my_agents = self.world.polices if self.my_side == 'Police' else self.world.terrorists
         for agent in my_agents:
@@ -71,22 +67,14 @@ class AI(RealtimeAI):
                 continue
             AgentNode = self.map.GetNodeByPosition((agent.position.y, agent.position.x))  # find root node
             pathes = []
-            # print(self.map.bombs)
             for i in self.map.bombs:
                 try:
-                                        # path ,cost=self.dijkstra._findpath(AgentNode.id,i.id)
                     path ,cost=self.dijkstra._findpath(AgentNode.id,self.map.GetNodeByPosition(i).id)
                     pathes.append([path,cost,i])
-                    # print(str(cost) + str(i))
                 except:
                     print(str(i) + " :out of reach")
-
-            # print("agent " + str(agent.id) + "prev_marked_bombs: " ,end="")
-            # for bi in self.marked_bombs:
-            #     print (str(bi[2]) , end= " ")
             planted_bombs = []
             for i in self.world.bombs:
-                print(str(i.position.y) + " " + str(i.position.x),end = " , ")
                 planted_bombs.append((i.position.y,i.position.x))
 
             pathes = sorted(pathes,key = lambda k : k[1])
@@ -95,37 +83,13 @@ class AI(RealtimeAI):
                     path = pathes[i][0]
                     self.marked_bombs[agent.id] = pathes[i][2]
                     break
-
-            # for ias in self.map.graph[self.map.GetNodeByPosition((11,2))]:
-            #     print(ias.coordinates)
-            # path ,cost=self.dijkstra._findpath(AgentNode.id,self.map.GetNodeByPosition((11,1)).id)
-
-            # bomb  = self.map.GetNodeByPosition(self.map.MediumBombSites[0])
-
-            # testnode1 = self.map.GetNodeByPosition((19,1    ))
-
-            # testnode2 = self.map.GetNodeByPosition((1, self.world.width-3))
-
-
             doing_bomb_operation = agent.defusion_remaining_time != -1 if self.my_side == 'Police' else agent.planting_remaining_time != -1
 
             if doing_bomb_operation:
                 self._agent_print(agent.id, 'Continue Bomb Operation')
                 continue
-            #if self.current_cycle > 53:
-            # path,c = self.dijkstra._findpath(AgentNode.id, testnode1.id)
-
-                # print(path)
-
-            # print(self.world.board[22][35])
-            # path = bfs.DoBfs(AgentNode, map, testnode2)
-
-
             bombsite_direction = self._find_bombsite_direction(agent)
             if bombsite_direction == None:
-                # self._agent_print(agent.id, 'Random Move')
-                # self.move(agent.id, random.choice(self._empty_directions(agent.position)))
-
                 self.move_by_path_list(agent, path)
             else:
                 self._agent_print(agent.id, 'Start Bomb Operation')
