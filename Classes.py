@@ -22,6 +22,7 @@ class Map:
         self.MediumBombSites = []
         self.SmallBombSites = []
         self.graph = {}
+        self.bombs = []
         # self.graph2 = {}
         self._init_map()
 
@@ -46,20 +47,37 @@ class Map:
                 self.Nodes[i].append(node)
                 if (self.board[i][j] == ECell.LargeBombSite):
                     self.LargeBombSites.append((i, j))
+                    self.bombs.append((i, j))
                 elif (self.board[i][j] == ECell.VastBombSite):
                     self.VastBombSites.append((i, j))
+                    self.bombs.append((i, j))
                 elif (self.board[i][j] == ECell.SmallBombSite):
                     self.SmallBombSites.append((i, j))
+                    self.bombs.append((i, j))
                 elif (self.board[i][j] == ECell.MediumBombSite):
                     self.MediumBombSites.append((i, j))
+                    self.bombs.append((i, j))
+        # print(self.bombs)
 
         for i in range(self.height):
             for j in range(self.width):
-                self._init_neighbors_graph(self.Nodes[i][j])
+                if (self.board[i][j] == ECell.Empty):
+                    self._init_neighbors_graph(self.Nodes[i][j],False)
+                else:
+                    self._init_neighbors_graph(self.Nodes[i][j],True)
+    def bomb_check(self,board):
+        count=len(self.bombs)
+        self.bombs = []
+        for i in range(self.height):
+            for j in range(self.width):
+                if (board[i][j] == ECell.LargeBombSite) or (board[i][j] == ECell.VastBombSite) or (board[i][j] == ECell.SmallBombSite) or (board[i][j] == ECell.MediumBombSite):
+                    self.bombs.append((i, j))
+        if(count != len(self.bombs)):
+            return True
+        return False
 
 
-
-    def _init_neighbors_graph(self, node):  # this function will be called in _init_map function.s
+    def _init_neighbors_graph(self, node,iswall):  # this function will be called in _init_map function.s
         j = node.coordinates[0]
         i = node.coordinates[1]
 
@@ -67,22 +85,19 @@ class Map:
         neighbors = []
 
         try:
-
-            if (self.board[i + 1][j] == ECell.Empty):
-                neighbors.append(self.Nodes[i + 1][j])
-            if (self.board[i - 1][j] == ECell.Empty):
-                neighbors.append(self.Nodes[i - 1][j])
-            if (self.board[i][j + 1] == ECell.Empty):
-                neighbors.append(self.Nodes[i][j + 1])
-            if (self.board[i][j - 1] == ECell.Empty):
-                neighbors.append(self.Nodes[i][j - 1])
-            if i == 35 and j == 22:
-                print("kojaE")
+            if(not iswall):
+                if (self.board[i + 1][j] != ECell.Wall):
+                    neighbors.append(self.Nodes[i + 1][j])
+                if (self.board[i - 1][j] != ECell.Wall):
+                    neighbors.append(self.Nodes[i - 1][j])
+                if (self.board[i][j + 1] != ECell.Wall):
+                    neighbors.append(self.Nodes[i][j + 1])
+                if (self.board[i][j - 1] != ECell.Wall):
+                    neighbors.append(self.Nodes[i][j - 1])
             self.graph[self.Nodes[i][j]] = neighbors
 
         except:
-            if(i==22 and j==35):
-                print("kos nane")
+            pass
 
 
     def GetNodeByPosition(self, position):
@@ -156,8 +171,8 @@ class _dijkstra:
         for i in self.polices:
             dfz+=self.danger_zone(i,self.police_vision)
             # print(i.coordinates)
-        for i in dfz:
-            print(i.coordinates)
+        # for i in dfz:
+        #     print(i.coordinates)
         for i in self.map.graph:
             for j in self.map.graph[i]:
                 if j in dfz:
@@ -181,13 +196,16 @@ class _dijkstra:
 
     def _findpath(self,source,destination):
         path_list = find_path(self.graph,source , destination,cost_func = self.cost_function).nodes
-        print(find_path(self.graph,source , destination,cost_func = self.cost_function).costs)
+        cost = find_path(self.graph,source , destination,cost_func = self.cost_function).costs
         position_path_list = []
+        cost = list(map(int,cost))
+        cost = sum(cost)
 
         for i in range(len(path_list)):
             node_coordinates = self.map.get_node_by_id(path_list[i]).coordinates
             position_path_list.append([node_coordinates[1],node_coordinates[0]])
-        return position_path_list
+        # print(position_path_list)
+        return position_path_list,cost
 
 
 
