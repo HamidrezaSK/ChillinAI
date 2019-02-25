@@ -208,17 +208,3 @@ class _dijkstra:
         return position_path_list,cost
 
 
-
-
-
-
-class decide_for_agent:
-    def __init__(self,agent_id,map):
-        self.agent = agent_id
-        self.map = map
-
-
-
-
-
-
