@@ -23,8 +23,9 @@ class AI(RealtimeAI):
     def initialize(self):
         print('initialize')
         self.map = Classes.Map(self.world.board, self.world.width, self.world.height)
-        self.dijkstra = Classes._dijkstra(self.map, self.world.polices, self.world.constants.police_vision_distance, True)
-        self.dijkstra_ct = Classes._dijkstra(self.map,None,None,False)
+        self.dijkstra = Classes._dijkstra(self.map, self.world.polices, self.world.constants.police_vision_distance,
+                                          True)
+        self.dijkstra_ct = Classes._dijkstra(self.map, None, None, False)
         self.marked_bombs = [None for i in range(len(self.world.terrorists))]
         self.recent_bombs = [None for i in range(len(self.world.terrorists))]
 
@@ -96,11 +97,13 @@ class AI(RealtimeAI):
         if (self.world.polices):
             # refresh map
             self.map = Classes.Map(self.world.board, self.world.width, self.world.height)
-            self.dijkstra = Classes._dijkstra(self.map, self.world.polices, self.world.constants.police_vision_distance,True)
+            self.dijkstra = Classes._dijkstra(self.map, self.world.polices, self.world.constants.police_vision_distance,
+                                              True)
         if (self.map.bomb_check(self.world.board)):
             # refresh map
             self.map = Classes.Map(self.world.board, self.world.width, self.world.height)
-            self.dijkstra = Classes._dijkstra(self.map, self.world.polices, self.world.constants.police_vision_distance,True)
+            self.dijkstra = Classes._dijkstra(self.map, self.world.polices, self.world.constants.police_vision_distance,
+                                              True)
 
         my_agents = self.world.polices if self.my_side == 'Police' else self.world.terrorists
         for agent in my_agents:
@@ -120,7 +123,8 @@ class AI(RealtimeAI):
 
             pathes = sorted(pathes, key=lambda k: k[1])
             for i in range(len(pathes)):
-                if (pathes[i][2] not in self.marked_bombs or pathes[i][2] == self.marked_bombs[agent.id]) and pathes[i][2] not in planted_bombs:
+                if (pathes[i][2] not in self.marked_bombs or pathes[i][2] == self.marked_bombs[agent.id]) and pathes[i][
+                    2] not in planted_bombs:
                     path = pathes[i][0]
                     self.marked_bombs[agent.id] = pathes[i][2]
                     break
@@ -141,15 +145,30 @@ class AI(RealtimeAI):
 
     def ct_decide(self):
         my_agents = self.world.polices if self.my_side == 'Police' else self.world.terrorists
+
+        bomb1 = self.map.GetNodeByPosition((self.map.VastBombSites[0][0], self.map.VastBombSites[0][1]))
+
+        bomb2 = self.map.GetNodeByPosition((self.map.VastBombSites[2][0], self.map.VastBombSites[2][1]))
+
+        all_zones = []
+
+        for bomb in self.map.VastBombSites:
+            bomb_node = self.map.GetNodeByPosition((bomb[0], bomb[1]))
+
+            paths = self.map.all_paths_from_source_node(self.map.graph, bomb_node, 8)
+
+            zone = self.map.final_zone(paths)
+
+            all_zones.append(zone)
+        ZoneToZone_analises = self.map.analyze_zones(all_zones,self.dijkstra_ct)
+
+        print(ZoneToZone_analises)
+
         for agent in my_agents:
             if agent.status == EAgentStatus.Dead:
                 continue
 
             AgentNode = self.map.GetNodeByPosition((agent.position.y, agent.position.x))  # find root node
-
-            bomb1 = self.map.VastBombSites[0]
-
-            bomb2 = self.map.VastBombSites[2]
 
             testnode1 = self.map.GetNodeByPosition((3, 2))
 

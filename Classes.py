@@ -25,8 +25,55 @@ class Map:
         self.SmallBombSites = []
         self.graph = {}
         self.bombs = []
-        # self.graph2 = {}
         self._init_map()
+
+    # find all paths from destination node with specific length
+    # first argument is the graph, second is source node, third is the length
+    def all_paths_from_source_node(self, G, u, n):
+        if n == 0:
+            return [[u]]
+        paths = []
+        for neighbor in G[u]:
+            for path in self.all_paths_from_source_node(G, neighbor, n - 1):
+                if u not in path:
+                    paths.append([u] + path)
+        return paths
+
+    # generates all zone nodes from paths
+    def final_zone(self, paths):
+        zone = []
+        for i in paths:
+            for j in i:
+                zone.append(j)
+        zone = list(dict.fromkeys(zone))
+        return zone
+
+
+    def analyze_zones(self,zones,dijkstra):
+        ZonesToZones = []
+        for i in range(len(zones)-1):
+            for j in range(i+1, len(zones)):
+                has_in_common_flag = False
+                common_nodes = []
+                for z in zones[i]:
+                    if z in zones[j]:
+                        has_in_common_flag = True
+                        common_nodes.append(z)
+                if has_in_common_flag:
+                    ZoneToZone = [{"hascommon":True},common_nodes]
+                else:
+                    # calculate the dijkstra between zones
+                    try:
+                        path = dijkstra._findpath(zones[i][0],zones[j][0])
+
+                        ZoneToZone = [{"hascommon":False},path]
+                    except IndexError:
+                        print(i,j,zones)
+                ZonesToZones += ZoneToZone
+        return ZonesToZones
+
+
+
 
     def get_pos_by_node(self, node):
 
@@ -64,7 +111,7 @@ class Map:
 
         for i in range(self.height):
             for j in range(self.width):
-                if self.board[i][j] == ECell.Empty:
+                if self.board[i][j] == ECell.Empty or (i, j) in self.bombs:
                     self._init_neighbors_graph(self.Nodes[i][j], False)
                 else:
                     self._init_neighbors_graph(self.Nodes[i][j], True)
@@ -107,51 +154,51 @@ class Map:
         return self.Nodes[position[0]][position[1]]
 
 
-class BFS:
-    def DoBfs(self, root, map, goal):
-
-        goal_found = False
-
-        graph = map.graph
-
-        parent = {root: root}
-
-        queue = collections.deque([root])
-        while queue:
-            vertex = queue.popleft()
-            i = 0
-
-            try:
-                for neighbour in graph[vertex]:
-                    i += 1
-
-                    if neighbour == goal:
-                        parent[neighbour] = vertex
-
-                        path = self.print_path(parent, neighbour, root)
-                        goal_found = True
-                        break
-
-                    if neighbour not in parent:
-                        # print("hi")
-                        parent[neighbour] = vertex
-                        queue.append(neighbour)
-            except KeyError:
-                print(vertex.coordinates)
-        if (goal_found):
-            path_pos_list = []
-            for i in range(len(path)):
-                path_pos_list.append(map.get_pos_by_node(path[i]))
-            return path_pos_list
-        return []
-
-    def print_path(self, parent, goal, start):
-        path = [goal]
-        # trace the path back till we reach start
-        while goal != start:
-            goal = parent[goal]
-            path.insert(0, goal)
-        return path
+# class BFS:
+#     def DoBfs(self, root, map, goal):
+#
+#         goal_found = False
+#
+#         graph = map.graph
+#
+#         parent = {root: root}
+#
+#         queue = collections.deque([root])
+#         while queue:
+#             vertex = queue.popleft()
+#             i = 0
+#
+#             try:
+#                 for neighbour in graph[vertex]:
+#                     i += 1
+#
+#                     if neighbour == goal:
+#                         parent[neighbour] = vertex
+#
+#                         path = self.print_path(parent, neighbour, root)
+#                         goal_found = True
+#                         break
+#
+#                     if neighbour not in parent:
+#                         # print("hi")
+#                         parent[neighbour] = vertex
+#                         queue.append(neighbour)
+#             except KeyError:
+#                 print(vertex.coordinates)
+#         if (goal_found):
+#             path_pos_list = []
+#             for i in range(len(path)):
+#                 path_pos_list.append(map.get_pos_by_node(path[i]))
+#             return path_pos_list
+#         return []
+#
+#     def print_path(self, parent, goal, start):
+#         path = [goal]
+#         # trace the path back till we reach start
+#         while goal != start:
+#             goal = parent[goal]
+#             path.insert(0, goal)
+#         return path
 
 
 class _dijkstra:
@@ -214,6 +261,7 @@ class _dijkstra:
             node_coordinates = self.map.get_node_by_id(path_list[i]).coordinates
             position_path_list.append([node_coordinates[1], node_coordinates[0]])
         return position_path_list, cost
+
 
 class decide_for_agent:
     def __init__(self, agent_id, map):
