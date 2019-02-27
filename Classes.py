@@ -222,10 +222,16 @@ class _dijkstra:
             self.cost_function = lambda u, v, e, prev_e: e['cost']
 
     def init_graph_ct(self):
-
+        boobytraps = []
+        for i in self.bombs:
+            # print("fuck")
+            boobytraps += self.danger_zone(i,-1)
         for i in self.map.graph:
             for j in self.map.graph[i]:
-                self.graph.add_edge(i.id, j.id, {'cost': 1})
+                if j in boobytraps:
+                    self.graph.add_edge(i.id, j.id, {'cost': 500})
+                else:
+                    self.graph.add_edge(i.id, j.id, {'cost': 1})
 
     def init_graph_terror(self):
         dfz = []
