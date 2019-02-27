@@ -128,10 +128,16 @@ class AI(RealtimeAI):
                 if (pathes[i][2] not in self.marked_bombs or pathes[i][2] == self.marked_bombs[agent.id]) and pathes[i][
                     2] not in planted_bombs:
                     path = pathes[i][0]
+                    cost = pathes[i][1]
+                    dest = pathes[i][2]
                     self.marked_bombs[agent.id] = pathes[i][2]
                     break
             doing_bomb_operation = agent.defusion_remaining_time != -1 if self.my_side == 'Police' else agent.planting_remaining_time != -1
-
+            try:
+                print("agent: " ,agent.id , " cost: ",cost , " destination: ",dest)
+            except:
+                pass
+            print()
             if doing_bomb_operation:
                 self._agent_print(agent.id, 'Continue Bomb Operation')
                 continue

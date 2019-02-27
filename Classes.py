@@ -233,10 +233,8 @@ class _dijkstra:
         for i in self.polices:
             dfz += self.danger_zone(i, self.police_vision)
         for i in self.bombs:
-            print(i.coordinates)
-        for i in self.bombs:
-            print("fuck")
-            boobytraps += self.danger_zone(i,0)
+            # print("fuck")
+            boobytraps += self.danger_zone(i,-1)
             # if (i.coordinates == (30,21)):
             #     print("bubytraps:")
             #     for j in boobytraps:
