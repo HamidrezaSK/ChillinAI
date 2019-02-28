@@ -70,21 +70,24 @@ class AI(RealtimeAI):
         self.send_command(Move(id=agent_id, direction=move_direction))
 
     def move_by_path_list(self, agent, list):
-        path = list
-        agent_id = agent.id
-        while len(path) != 1:
-            if (path[0][0] == path[1][0]) and (path[0][1] > path[1][1]):
-                self.move(agent_id, ECommandDirection.Left)
-                return
-            elif (path[0][0] == path[1][0]) and (path[0][1] < path[1][1]):
-                self.move(agent_id, ECommandDirection.Right)
-                return
-            elif (path[0][0] > path[1][0]) and (path[0][1] == path[1][1]):
-                self.move(agent_id, ECommandDirection.Up)
-                return
-            elif (path[0][0] < path[1][0]) and (path[0][1] == path[1][1]):
-                self.move(agent_id, ECommandDirection.Down)
-                return
+        try:
+            path = list
+            agent_id = agent.id
+            while len(path) != 1:
+                if (path[0][0] == path[1][0]) and (path[0][1] > path[1][1]):
+                    self.move(agent_id, ECommandDirection.Left)
+                    return
+                elif (path[0][0] == path[1][0]) and (path[0][1] < path[1][1]):
+                    self.move(agent_id, ECommandDirection.Right)
+                    return
+                elif (path[0][0] > path[1][0]) and (path[0][1] == path[1][1]):
+                    self.move(agent_id, ECommandDirection.Up)
+                    return
+                elif (path[0][0] < path[1][0]) and (path[0][1] == path[1][1]):
+                    self.move(agent_id, ECommandDirection.Down)
+                    return
+        except Exception:
+            raise Exception
 
     def _empty_directions(self, position):
         empty_directions = []
@@ -137,6 +140,39 @@ class AI(RealtimeAI):
                     self.marked_bombs[agent.id] = pathes[i][2]
                     break
             doing_bomb_operation = agent.defusion_remaining_time != -1 if self.my_side == 'Police' else agent.planting_remaining_time != -1
+            try:
+                if path[2] in planted_bombs:
+                    path = []
+            except:
+                while len(path) != 1:
+                    if (path[0][0] == path[1][0]) and (path[0][1] > path[1][1]):
+                        path[1] = (path[0][0],path[0][1]+1)
+                        break
+                    elif (path[0][0] == path[1][0]) and (path[0][1] < path[1][1]):
+                        path[1] = (path[0][0],path[0][1]-1)
+                        break
+                    elif (path[0][0] > path[1][0]) and (path[0][1] == path[1][1]):
+                        path[1] = (path[0][0]-1,path[0][1])
+                        break
+                    elif (path[0][0] < path[1][0]) and (path[0][1] == path[1][1]):
+                        path[1] = (path[0][0]+1,path[0][1]+1)
+                        break
+
+            if path[1] in planted_bombs:
+                print("damn it move")
+                while len(path) != 1:
+                    if (path[0][0] == path[1][0]) and (path[0][1] > path[1][1]):
+                        path[1] = (path[0][0],path[0][1]+1)
+                        break
+                    elif (path[0][0] == path[1][0]) and (path[0][1] < path[1][1]):
+                        path[1] = (path[0][0],path[0][1]-1)
+                        break
+                    elif (path[0][0] > path[1][0]) and (path[0][1] == path[1][1]):
+                        path[1] = (path[0][0]-1,path[0][1])
+                        break
+                    elif (path[0][0] < path[1][0]) and (path[0][1] == path[1][1]):
+                        path[1] = (path[0][0]+1,path[0][1]+1)
+                        break 
             # try:
             #     print("agent: " ,agent.id , " cost: ",cost , " destination: ",dest)
             # except:
@@ -146,7 +182,7 @@ class AI(RealtimeAI):
                 self._agent_print(agent.id, 'Continue Bomb Operation')
                 continue
             bombsite_direction = self._find_bombsite_direction(agent)
-            if bombsite_direction == None:
+            if bombsite_direction == None and cost<30000:
                 self.move_by_path_list(agent, path)
             else:
                 self._agent_print(agent.id, 'Start Bomb Operation')
