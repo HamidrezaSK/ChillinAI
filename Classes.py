@@ -14,7 +14,7 @@ class Node:
 
 class Map:
     def __init__(self, board, width,
-                 height):  # board , width , height are the game initiate attributes in decide function.
+                 height,ct_bombs_to_go=[]):  # board , width , height are the game initiate attributes in decide function.
         self.board = board
         self.Nodes = []  # this is the board with nodes.
         self.width = width
@@ -25,55 +25,53 @@ class Map:
         self.SmallBombSites = []
         self.graph = {}
         self.bombs = []
+        self.bombs_dic_ct = {}
+        self.bombs_to_go = ct_bombs_to_go
         self._init_map()
 
     # find all paths from destination node with specific length
     # first argument is the graph, second is source node, third is the length
-    def all_paths_from_source_node(self, G, u, n):
-        if n == 0:
-            return [[u]]
-        paths = []
-        for neighbor in G[u]:
-            for path in self.all_paths_from_source_node(G, neighbor, n - 1):
-                if u not in path:
-                    paths.append([u] + path)
-        return paths
-
-    # generates all zone nodes from paths
-    def final_zone(self, paths):
-        zone = []
-        for i in paths:
-            for j in i:
-                zone.append(j)
-        zone = list(dict.fromkeys(zone))
-        return zone
-
-
-    def analyze_zones(self,zones,dijkstra):
-        ZonesToZones = []
-        for i in range(len(zones)-1):
-            for j in range(i+1, len(zones)):
-                has_in_common_flag = False
-                common_nodes = []
-                for z in zones[i]:
-                    if z in zones[j]:
-                        has_in_common_flag = True
-                        common_nodes.append(z)
-                if has_in_common_flag:
-                    ZoneToZone = [{"hascommon":True},common_nodes]
-                else:
-                    # calculate the dijkstra between zones
-                    try:
-                        path = dijkstra._findpath(zones[i][0],zones[j][0])
-
-                        ZoneToZone = [{"hascommon":False},path]
-                    except IndexError:
-                        print(i,j,zones)
-                ZonesToZones += ZoneToZone
-        return ZonesToZones
-
-
-
+    # def all_paths_from_source_node(self, G, u, n):
+    #     if n == 0:
+    #         return [[u]]
+    #     paths = []
+    #     for neighbor in G[u]:
+    #         for path in self.all_paths_from_source_node(G, neighbor, n - 1):
+    #             if u not in path:
+    #                 paths.append([u] + path)
+    #     return paths
+    #
+    # # generates all zone nodes from paths
+    # def final_zone(self, paths):
+    #     zone = []
+    #     for i in paths:
+    #         for j in i:
+    #             zone.append(j)
+    #     zone = list(dict.fromkeys(zone))
+    #     return zone
+    #
+    # def analyze_zones(self, zones, dijkstra):
+    #     ZonesToZones = []
+    #     for i in range(len(zones) - 1):
+    #         for j in range(i + 1, len(zones)):
+    #             has_in_common_flag = False
+    #             common_nodes = []
+    #             for z in zones[i]:
+    #                 if z in zones[j]:
+    #                     has_in_common_flag = True
+    #                     common_nodes.append(z)
+    #             if has_in_common_flag:
+    #                 ZoneToZone = [{"hascommon": True}, common_nodes]
+    #             else:
+    #                 # calculate the dijkstra between zones
+    #                 try:
+    #                     path = dijkstra._findpath(zones[i][0], zones[j][0])
+    #
+    #                     ZoneToZone = [{"hascommon": False}, path]
+    #                 except IndexError:
+    #                     print(i, j, zones)
+    #             ZonesToZones += ZoneToZone
+    #     return ZonesToZones
 
     def get_pos_by_node(self, node):
 
@@ -109,9 +107,16 @@ class Map:
                     self.bombs.append((i, j))
         # print(self.bombs)
 
+        # w = self.bombs[::-1]
+        for i in self.bombs:
+            bombb = self.GetNodeByPosition((i[0], i[1]))
+            self.bombs_dic_ct[bombb] = False
+
+
         for i in range(self.height):
             for j in range(self.width):
                 if self.board[i][j] == ECell.Empty or (i, j) in self.bombs:
+                    #
                     self._init_neighbors_graph(self.Nodes[i][j], False)
                 else:
                     self._init_neighbors_graph(self.Nodes[i][j], True)
@@ -122,7 +127,7 @@ class Map:
         for i in range(self.height):
             for j in range(self.width):
                 if (board[i][j] == ECell.LargeBombSite) or (board[i][j] == ECell.VastBombSite) or (
-                        board[i][j] == ECell.SmallBombSite) or (board[i][j] == ECell.MediumBombSite):
+                            board[i][j] == ECell.SmallBombSite) or (board[i][j] == ECell.MediumBombSite):
                     self.bombs.append((i, j))
         if count != len(self.bombs):
             return True
@@ -202,12 +207,12 @@ class Map:
 
 
 class _dijkstra:
-
     def __init__(self, map, polices, police_vision, isterror):
         self.isterror = isterror
         if self.isterror:
             self.graph = Graph()
             self.map = map
+            self.bombs = [self.map.GetNodeByPosition(buby) for buby in self.map.bombs]
             self.finded_path = None
             self.polices = [self.map.GetNodeByPosition((agent.position.y, agent.position.x)) for agent in polices]
             self.police_vision = police_vision
@@ -216,26 +221,42 @@ class _dijkstra:
         else:
             self.graph = Graph()
             self.map = map
+            self.bombs = [self.map.GetNodeByPosition(buby) for buby in self.map.bombs]
             self.finded_path = None
             self.init_graph_ct()
             self.cost_function = lambda u, v, e, prev_e: e['cost']
 
     def init_graph_ct(self):
-
+        boobytraps = []
+        for i in self.bombs:
+            # print("fuck")
+            boobytraps += self.danger_zone(i, -1)
         for i in self.map.graph:
             for j in self.map.graph[i]:
-                self.graph.add_edge(i.id, j.id, {'cost': 1})
+                if j in boobytraps:
+                    self.graph.add_edge(i.id, j.id, {'cost': 500})
+                else:
+                    self.graph.add_edge(i.id, j.id, {'cost': 1})
 
     def init_graph_terror(self):
         dfz = []
+        boobytraps = []
         for i in self.polices:
             dfz += self.danger_zone(i, self.police_vision)
+        for i in self.bombs:
+            # print("fuck")
+            boobytraps += self.danger_zone(i, -1)
+            # if (i.coordinates == (30,21)):
+            #     print("bubytraps:")
+            #     for j in boobytraps:
+            #         print(j.coordinates)
 
         for i in self.map.graph:
             for j in self.map.graph[i]:
                 if j in dfz:
-                    self.graph.add_edge(i.id, j.id, {'cost': 1000})
-
+                    self.graph.add_edge(i.id, j.id, {'cost': 10000})
+                elif j in boobytraps:
+                    self.graph.add_edge(i.id, j.id, {'cost': 500})
                 else:
                     self.graph.add_edge(i.id, j.id, {'cost': 1})
 
@@ -247,7 +268,15 @@ class _dijkstra:
         for y_vision in range(-police_vision - 1, police_vision + 2):
             for x_vision in range(-police_vision - 1, police_vision + 2):
                 if abs(x_vision) + abs(y_vision) < police_vision + 2:
-                    danger_fucking_zone.append(self.map.Nodes[j + y_vision][i + x_vision])
+                    try:
+                        danger_fucking_zone.append(self.map.Nodes[j + y_vision][i + x_vision])
+                    except:
+                        # print(j + y_vision,end=" ")
+                        # print(i + x_vision)
+                        # print("height " +str(self.map.height),end=" ")
+                        # print("width "+str(self.map.width))
+                        pass
+
         return danger_fucking_zone
 
     def _findpath(self, source, destination):
@@ -263,7 +292,3 @@ class _dijkstra:
         return position_path_list, cost
 
 
-class decide_for_agent:
-    def __init__(self, agent_id, map):
-        self.agent = agent_id
-        self.map = map
