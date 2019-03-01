@@ -431,7 +431,7 @@ class AI(RealtimeAI):
 
             if self.map.primitive_dict_lists[agent.id][bomb] == True:
                 self.map.current_headed_bomb_ct_list[agent.id] = self.map.GetNodeByPosition((bomb[0], bomb[1]))
-                if agent_node == bomb:
+                if self.ct_is_arrived(agent,bomb):
                     index_current_bomb = primitive.index(bomb)
 
                     if index_current_bomb == len(primitive)-1:
@@ -443,6 +443,15 @@ class AI(RealtimeAI):
                         self.map.primitive_dict_lists[agent.id][bomb] = False
                         self.map.primitive_dict_lists[agent.id][next_bomb] = True   
 
+    def ct_is_arrived(self,agent,bomb):
+        agent_coordinates = (agent.position.y, agent.position.x)
+
+        if agent_coordinates[0] == bomb[0] and abs(agent_coordinates[1]-bomb[1]) == 1:
+            return True
+        elif agent_coordinates[1] == bomb[1] and abs(agent_coordinates[0]-bomb[0]) == 1:
+            return True
+        else:
+            return False
 
     def _sum_pos_tuples(self, t1, t2):
         return (t1[0] + t2[0], t1[1] + t2[1])
