@@ -14,7 +14,7 @@ class Node:
 
 class Map:
     def __init__(self, board, width,
-                 height):  # board , width , height are the game initiate attributes in decide function.
+                 height,ct_bombs_to_go=[]):  # board , width , height are the game initiate attributes in decide function.
         self.board = board
         self.Nodes = []  # this is the board with nodes.
         self.width = width
@@ -26,7 +26,12 @@ class Map:
         self.graph = {}
         self.bombs = []
         self.bombs_dic_ct = {}
-        self.bombs_to_go = []
+        self.bombs_to_go = ct_bombs_to_go
+
+        self.current_headed_bomb_ct_list = []
+
+        self.primitive_dict_lists = []
+        
         self._init_map()
 
     # find all paths from destination node with specific length
@@ -292,7 +297,3 @@ class _dijkstra:
         return position_path_list, cost
 
 
-class decide_for_agent:
-    def __init__(self, agent_id, map):
-        self.agent = agent_id
-        self.map = map
