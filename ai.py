@@ -121,9 +121,7 @@ class AI(RealtimeAI):
                 try:
                     path, cost = self.dijkstra._findpath(AgentNode.id, self.map.GetNodeByPosition(i).id)
                     pathes.append([path, cost, i])
-                    # print(cost," ",i)
                 except:
-                    # print(str(i) + " :out of reach")
                     pass
             planted_bombs = []
             for i in self.world.bombs:
@@ -173,11 +171,7 @@ class AI(RealtimeAI):
                     elif (path[0][0] < path[1][0]) and (path[0][1] == path[1][1]):
                         path[1] = (path[0][0]+1,path[0][1]+1)
                         break 
-            # try:
-            #     print("agent: " ,agent.id , " cost: ",cost , " destination: ",dest)
-            # except:
-            #     pass
-            # print()
+
             if doing_bomb_operation:
                 self._agent_print(agent.id, 'Continue Bomb Operation')
                 continue
@@ -198,107 +192,13 @@ class AI(RealtimeAI):
             self.init_ct()
 
         self.move_ct()
-        # print(self.map.LargeBombSites)
-
-        # bomb1 = self.map.GetNodeByPosition((self.map.LargeBombSites[0][0], self.map.LargeBombSites[0][1]))
-        # bomb1 = self.map.GetNodeByPosition((23, 35))
-
-
-
-        # bomb2 = self.map.GetNodeByPosition((self.map.LargeBombSites[2][0], self.map.LargeBombSites[2][1]))
-
-        # all_zones = []
-        #
-        # for bomb in self.map.VastBombSites:
-        #     bomb_node = self.map.GetNodeByPosition((bomb[0], bomb[1]))
-        #
-        #     paths = self.map.all_paths_from_source_node(self.map.graph, bomb_node, 8)
-        #
-        #     zone = self.map.final_zone(paths)
-        #
-        #     all_zones.append(zone)
-        # ZoneToZone_analises = self.map.analyze_zones(all_zones,self.dijkstra_ct)
-        #
-        # print(ZoneToZone_analises)
-
-        # for agent in my_agents:
-        #     if agent.status == EAgentStatus.Dead:
-        #         continue
-
-            # AgentNode = self.map.GetNodeByPosition((agent.position.y, agent.position.x))  # find root node
-            # AgentNodeCoordinates = (agent.position.y, agent.position.x)
+        # print(self.world.bomb)
 
 
 
 
 
-            # testnode1 = self.map.GetNodeByPosition((3, 2))
-            #
-            # testnode2 = self.map.GetNodeByPosition((16, 10))
-
-            # doing_bomb_operation = agent.defusion_remaining_time != -1 if self.my_side == 'Police' else agent.planting_remaining_time != -1
-
-            # if doing_bomb_operation:
-            #     self._agent_print(agent.id, 'Continue Bomb Operation')
-            #     continue
-
-            # bombsite_direction = self._find_bombsite_direction(agent)
-            # if bombsite_direction is None:
-            #     pass
-                # if agent.id == 1:
-                    # path = self.dijkstra_ct._findpath(AgentNode.id, bomb2.id)[0]
-                    # self.move_by_path_list(agent, path)
-
-
-                # elif agent.id == 0:
-                #     path = self.dijkstra_ct._findpath(AgentNode.id, bomb1.id)[0]
-                #     self.move_by_path_list(agent, path)
-                # x = self.map.bombs[::-1]
-                # for bomb in x:
-                #     bombb = self.map.GetNodeByPosition((bomb[0], bomb[1]))
-                #     path_cost = self.dijkstra_ct._findpath(AgentNode.id, bombb.id)
-                #     cost = path_cost[1]
-                #
-                #     bombs_headed = []
-                #
-                #     for i in self.map.bombs_dic_ct:
-                #         if self.map.bombs_dic_ct[bombb] == True:
-                #             bombs_headed.append(True)
-                #
-                #     if cost > 1000 and self.map.bombs_dic_ct[bombb] == False and len(bombs_headed)<3:
-                #         self.map.bombs_dic_ct[bombb] = True
-                #         self.map.bombs_to_go.append(bombb)
-                        # print(path)
-                # print(self.map.bombs_to_go[0])
-                # print(self.map.bombs_to_go[1])
-                # print(self.map.bombs_to_go[2])
-                # print(self.map.bombs_to_go)
-                        # if agent.id == 0:
-                        #     pathh = self.dijkstra_ct._findpath(AgentNode.id, self.map.bombs_to_go[0].id)
-                        #     path = pathh[0]
-                        #     # cost = pathh[1]
-                        #     self.move_by_path_list(agent, path)
-                        #     # print(0,cost,path)
-                        # elif agent.id == 2:
-                        #     pathh = self.dijkstra_ct._findpath(AgentNode.id, self.map.bombs_to_go[1].id)
-                        #     path = pathh[0]
-                        #     # cost = pathh[1]
-                        #     self.move_by_path_list(agent, path)
-                        #     # print(1,cost,path)
-                        # elif agent.id == 1:
-                        #     pathh = self.dijkstra_ct._findpath(AgentNode.id, self.map.bombs_to_go[2].id)
-                        #     path = pathh[0]
-                        #     # cost = pathh[1]
-                        #     self.move_by_path_list(agent, path)
-                    # print(2,cost,path)
-
-            # else:
-            #     self._agent_print(agent.id, 'Start Bomb Operation')
-            #     if self.my_side == 'Police':
-            #         self.defuse(agent.id, bombsite_direction)
-            #     else:
-            #         self.plant(agent.id, bombsite_direction)
-        print("hi",self.current_cycle)
+        print("cycle",self.current_cycle)
     def _find_bombsite_direction(self, agent):
         for direction in self.DIRECTIONS:
             pos = self._sum_pos_tuples((agent.position.x, agent.position.y), self.DIR_TO_POS[direction])
@@ -320,7 +220,11 @@ class AI(RealtimeAI):
         return True
 
     def init_ct(self):
+
         my_agents = self.world.polices
+        self.ct_heard_marked_bombs = [None for i in my_agents]
+
+        self.got_time_to_defuse = [True for i in my_agents]
         # pathes=[[] for i in my_agents]
 
         self.primitive = [[] for i in my_agents]
@@ -342,7 +246,41 @@ class AI(RealtimeAI):
             for i in far_bombs:
                 pathes.remove(i)
             pathes = sorted(pathes,key = lambda k : k[1])
-            bomb_count = round(len(pathes)/len(my_agents))
+            # bomb_count = round(len(pathes)/len(my_agents))
+            # for i in pathes:
+            #     if self.available_bombside(i):
+            #         if len(self.primitive[agent.id])<bomb_count:
+            #             self.primitive[agent.id].append(i[2])
+            #         elif agent.id == len(my_agents)-1:
+            #             self.primitive[agent.id].append(i[2])
+            #         else:
+            #             break
+            for i in pathes:
+                if self.available_bombside(i):
+                    self.primitive[agent.id].append(i[2])
+                    print(i[2])
+                    print("found nearest bomb : ",agent.id)
+                    break
+            pathes = []
+            for bomb in self.map.bombs:
+                if(bomb != self.primitive[agent.id][0]):
+                    path,cost = self.dijkstra_ct._findpath(self.map.GetNodeByPosition((self.primitive[agent.id][0][0], self.primitive[agent.id][0][1])).id, self.map.GetNodeByPosition((bomb[0], bomb[1])).id)        
+                    pathes.append([path,cost,bomb])
+            print("whole bombs: ",len(pathes))
+            # far_bombs = []
+            # for i in range(len(pathes)):
+            #     if(pathes[i][1]>1000):
+            #         far_bombs.append(pathes[i])
+            print("far_bombs : ",len(far_bombs))
+            for i in far_bombs:
+                for j in pathes:
+                    if j[2] == i[2]:
+                        print("found a match")
+                        pathes.remove(j)
+                        break
+            pathes = sorted(pathes,key = lambda k : k[1])
+            bomb_count = round((len(pathes)+1)/len(my_agents))
+            print(len(pathes)+1," bombs found " , bomb_count)
             for i in pathes:
                 if self.available_bombside(i):
                     if len(self.primitive[agent.id])<bomb_count:
@@ -351,8 +289,7 @@ class AI(RealtimeAI):
                         self.primitive[agent.id].append(i[2])
                     else:
                         break
-        
-
+            print(self.primitive)
         self.sort_primitive()
 
         self.map.current_headed_bomb_ct_list = [None for i in self.primitive]
@@ -409,12 +346,21 @@ class AI(RealtimeAI):
 
             bombsite_direction = self._find_bombsite_direction(agent)
             if bombsite_direction is None:
+                if(len(agent.bomb_sounds)>0):
+                    self.bombSoundReaction(AgentNode,agent)
+                else:
+                    self.move_by_primitive(agent, AgentNode)
 
-                self.move_by_primitive(agent, AgentNode)
+                    path, cost = self.dijkstra_ct._findpath(AgentNode.id, self.map.current_headed_bomb_ct_list[agent.id].id)
+                    # print(path)
 
-                path, cost = self.dijkstra_ct._findpath(AgentNode.id, self.map.current_headed_bomb_ct_list[agent.id].id)
-                print(path)
-                self.move_by_path_list(agent, path)
+                    footstep_sounds = agent.footstep_sounds
+
+                    bomb_sounds = agent.bomb_sounds
+                    # print(agent.defusion_remaining_time)
+                    # print(bomb_sounds)
+
+                    self.move_by_path_list(agent, path)
 
             else:
                 self._agent_print(agent.id, 'Start Bomb Operation')
@@ -452,6 +398,74 @@ class AI(RealtimeAI):
             return True
         else:
             return False
+
+    def bombSoundReaction(self,AgentNode,agent):
+        # print("I hear bomb")
+        pathes = []
+        agent_primitives = self.primitive[agent.id]
+        for bomb in agent_primitives:
+            path,cost = self.dijkstra_ct._findpath(AgentNode.id, self.map.GetNodeByPosition(bomb).id)
+            pathes.append([path,cost,bomb])
+
+
+
+        if ESoundIntensity.Strong in agent.bomb_sounds or ESoundIntensity.Normal in agent.bomb_sounds:
+            pathes = sorted(pathes , key = lambda k:k[1])
+
+
+            for i in range(len(pathes)):
+                if pathes[i][2] not in self.ct_heard_marked_bombs and self.ct_heard_marked_bombs[agent.id] == None:
+                    print("marking_bomb for agent" + str(agent.id))
+                    self.ct_heard_marked_bombs[agent.id] = pathes[i][2]
+                    pathh = pathes[i][0]
+                    if len(pathh) <=3:
+                        for bomb in self.world.bombs:
+                            y = bomb.position.y
+                            x = bomb.position.x
+                            if pathes[i][2] == (y,x):
+                                remaining_time = bomb.explosion_remaining_time
+                                if remaining_time < self.world.constants.bomb_defusion_time +2:
+                                    self.got_time_to_defuse[agent.id] = False
+                                    print("remaining time: " + str(remaining_time) + "defusion time : " + str(
+                                        self.world.constants.bomb_defusion_time))
+
+
+        headed_node = self.ct_heard_marked_bombs[agent.id]
+
+
+
+        if headed_node != None and self.got_time_to_defuse[agent.id]:
+            path, cost = self.dijkstra_ct._findpath(AgentNode.id, self.map.GetNodeByPosition(headed_node).id)
+            print("moving to heard bomb...agent id is; "+str(agent.id) + " bomb is : " + str(headed_node))
+            self.move_by_path_list(agent,path)
+
+        elif headed_node != None and not self.got_time_to_defuse[agent.id]:
+            print("no time to go and defuse")
+        else:
+
+            print("the bomb is marked")
+            self.move_by_primitive(agent, AgentNode)
+
+            path, cost = self.dijkstra_ct._findpath(AgentNode.id, self.map.current_headed_bomb_ct_list[agent.id].id)
+
+            self.move_by_path_list(agent, path)
+
+
+
+
+        # pathes = []
+        # print(self.world.bombs)
+        # for bomb in self.world.bombs:
+        #     path,cost = self.dijkstra_ct._findpath(AgentNode.id, self.map.GetNodeByPosition((bomb.position.y, bomb.position.x)).id)
+        #     print("there u go")
+        #     if(self.world.constants.bomb_defusion_time+len(path)<=bomb.explosion_remaining_time):
+        #         print("I can save this one")
+        #         pathes.append([path,cost,len(path),abs(self.world.constants.bomb_defusion_time+len(path)-bomb.explosion_remaining_time)])
+        # pathes = sorted(pathes,key = lambda k: k[3])
+        # for i in pathes:
+        #     print(i[1])
+
+
 
     def _sum_pos_tuples(self, t1, t2):
         return (t1[0] + t2[0], t1[1] + t2[1])
