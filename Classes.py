@@ -14,7 +14,8 @@ class Node:
 
 class Map:
     def __init__(self, board, width,
-                 height,ct_bombs_to_go=[]):  # board , width , height are the game initiate attributes in decide function.
+                 height,
+                 ct_bombs_to_go=[]):  # board , width , height are the game initiate attributes in decide function.
         self.board = board
         self.Nodes = []  # this is the board with nodes.
         self.width = width
@@ -27,7 +28,7 @@ class Map:
         self.bombs = []
         self.bombs_dic_ct = {}
         self.bombs_to_go = ct_bombs_to_go
-        
+
         self._init_map()
 
     # find all paths from destination node with specific length
@@ -112,7 +113,6 @@ class Map:
         for i in self.bombs:
             bombb = self.GetNodeByPosition((i[0], i[1]))
             self.bombs_dic_ct[bombb] = False
-
 
         for i in range(self.height):
             for j in range(self.width):
