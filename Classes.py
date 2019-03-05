@@ -27,10 +27,6 @@ class Map:
         self.bombs = []
         self.bombs_dic_ct = {}
         self.bombs_to_go = ct_bombs_to_go
-
-        self.current_headed_bomb_ct_list = []
-
-        self.primitive_dict_lists = []
         
         self._init_map()
 
